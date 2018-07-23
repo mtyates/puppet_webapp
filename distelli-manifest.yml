@@ -1,4 +1,4 @@
-myates/puppet_webapp1:
+myates/puppet_webapp:
   Env:
     - PORT: "8080"
   PreBuild:
