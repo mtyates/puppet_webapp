@@ -1,10 +1,14 @@
-ipcrm/puppet_webapp_docker:
+mtyates/puppet_webapp_docker:
   Env:
     - PORT: "8080"
   PreBuild:
-    - sudo pip install tox
+    - sudo pip install tox  
+    - echo "DD_USERNAME- $DISTELLI_DOCKER_USERNAME"
+    - echo "DD_EMAIL-    $DISTELLI_DOCKER_EMAIL"
+    - echo "DD_ENDPOINT- $DISTELLI_DOCKER_ENDPOINT"
+    - echo "DD_PORTS-    $DISTELLI_DOCKER_PORTS"  
   Build:
-    - tox
+    - tox  
     - docker login -u "$DISTELLI_DOCKER_USERNAME" -p "$DISTELLI_DOCKER_PW" $DISTELLI_DOCKER_ENDPOINT
     - docker build --quiet=false -t "$DISTELLI_DOCKER_REPO" $DISTELLI_DOCKER_PATH
     - docker tag "$DISTELLI_DOCKER_REPO" "$DISTELLI_DOCKER_REPO:$DISTELLI_BUILDNUM"
@@ -14,6 +18,14 @@ ipcrm/puppet_webapp_docker:
   Exec:
     - cid=$(uuidgen)
     - trap 'sudo docker stop $cid' SIGTERM
+    - echo "DD_USERNAME- $DISTELLI_DOCKER_USERNAME"
+    - echo "DD_EMAIL-    $DISTELLI_DOCKER_EMAIL"
+    - echo "DD_ENDPOINT- $DISTELLI_DOCKER_ENDPOINT"
+    - echo "DD_PORTS-    $DISTELLI_DOCKER_PORTS"      
     - sudo -E docker run --name=$cid $DISTELLI_DOCKER_ENVS --rm=true $DISTELLI_DOCKER_PORTS "$DISTELLI_DOCKER_REPO:$DISTELLI_BUILDNUM" &
     - wait
     - "true"
+  PostStart:
+    - sudo iptables -I INPUT -p tcp -m multiport --dports $PORT -m comment --comment "110 allow http ${PORT} access" -j ACCEPT
+    - publicip=$(curl -s ident.me) || true
+    - 'echo "URL: http://$publicip:$PORT"'
