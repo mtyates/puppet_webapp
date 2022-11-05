@@ -29,9 +29,9 @@ pytest==3.4.0
 pytest-cov==2.5.1
 python-owasp-zap-v2.4==0.0.14
 pyzmq==17.0.0
-requests==2.18.4
+requests==2.20
 selenium==3.9.0
 six==1.11.0
-urllib3==1.22
+urllib3==1.26.5
 Werkzeug==0.11.9
 wrapt==1.10.11
